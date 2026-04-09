@@ -132,7 +132,15 @@ def post_charadas():
         # Busca pelo contador
         contador_ref = db.collection("contador").document("controle_id")
         contador_doc = contador_ref.get()
-        ultimo_id = contador_doc.to_dict().get("ultimo_id")
+        
+        # Correção: Trata o caso onde o documento no banco ainda não foi criado
+        doc_dict = contador_doc.to_dict()
+        if doc_dict is not None and "ultimo_id" in doc_dict:
+            ultimo_id = doc_dict.get("ultimo_id")
+        else:
+            ultimo_id = 0
+            contador_ref.set({"ultimo_id": 0}) # Cria o documento se não existir
+            
         # Somar 1 ao ultimo id
         novo_id = ultimo_id + 1
         # Atualizar o id do contador
